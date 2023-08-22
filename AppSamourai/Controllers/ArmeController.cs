@@ -2,36 +2,35 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AppSamourai.Data;
 using BO.Model;
+using TpEni.Repositories;
 
 namespace TpEni
 {
     public class ArmeController : Controller
     {
-        private readonly SamouraiDbContext _context;
+        private readonly ArmeRepository _armeRepository;
 
-        public ArmeController(SamouraiDbContext context)
+        public ArmeController(ArmeRepository armeRepository)
         {
-            _context = context;
+            _armeRepository = armeRepository;
         }
 
         // GET: Arme
         public async Task<IActionResult> Index()
         {
-              return _context.Armes != null ? 
-                          View(await _context.Armes.ToListAsync()) :
-                          Problem("Entity set 'SamouraiDbContext.Armes'  is null.");
+            return View(_armeRepository.GetAll().ToList());
         }
 
         // GET: Arme/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Armes == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var arme = await _context.Armes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var arme = _armeRepository.GetAll()
+                .FirstOrDefault(m => m.Id == id);
             if (arme == null)
             {
                 return NotFound();
@@ -55,8 +54,8 @@ namespace TpEni
         {
             if (ModelState.IsValid)
             {
-                _context.Add(arme);
-                await _context.SaveChangesAsync();
+                _armeRepository.Add(arme);
+                _armeRepository.Save();
                 return RedirectToAction(nameof(Index));
             }
             return View(arme);
@@ -65,12 +64,12 @@ namespace TpEni
         // GET: Arme/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Armes == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var arme = await _context.Armes.FindAsync(id);
+            var arme = _armeRepository.GetById(id.Value);
             if (arme == null)
             {
                 return NotFound();
@@ -94,8 +93,8 @@ namespace TpEni
             {
                 try
                 {
-                    _context.Update(arme);
-                    await _context.SaveChangesAsync();
+                    _armeRepository.Update(arme);
+                    _armeRepository.Save();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -116,13 +115,14 @@ namespace TpEni
         // GET: Arme/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Armes == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var arme = await _context.Armes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var arme = _armeRepository
+                .GetAll()
+                .FirstOrDefault(m => m.Id == id);
             if (arme == null)
             {
                 return NotFound();
@@ -136,23 +136,19 @@ namespace TpEni
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Armes == null)
-            {
-                return Problem("Entity set 'SamouraiDbContext.Armes'  is null.");
-            }
-            var arme = await _context.Armes.FindAsync(id);
+            var arme = _armeRepository.GetById(id);
             if (arme != null)
             {
-                _context.Armes.Remove(arme);
+                _armeRepository.Delete(arme);
             }
             
-            await _context.SaveChangesAsync();
+            _armeRepository.Save();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ArmeExists(int id)
         {
-          return (_context.Armes?.Any(e => e.Id == id)).GetValueOrDefault();
+          return _armeRepository.GetWhere(e => e.Id == id).Count() != 0;
         }
     }
 }

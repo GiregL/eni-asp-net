@@ -1,5 +1,6 @@
 using AppSamourai.Data;
 using Microsoft.EntityFrameworkCore;
+using TpEni.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddDbContext<SamouraiDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("Datasource"));
 });
+
+builder.Services.AddScoped<ArmeRepository, ArmeRepository>();
 
 var app = builder.Build();
 

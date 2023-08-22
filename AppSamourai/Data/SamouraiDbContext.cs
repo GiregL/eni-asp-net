@@ -29,8 +29,8 @@ public class SamouraiDbContext : DbContext
         samouraiBuilder
             .HasOne(samourai => samourai.Arme)
             .WithOne(arme => arme.Utilisateur)
-            .HasForeignKey<Samourai>(samourai => samourai.IdArme).OnDelete(DeleteBehavior.Restrict)
-            .HasPrincipalKey<Arme>(arme => arme.IdUtilisateur).OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey<Arme>(arme => arme.IdUtilisateur)
+            .OnDelete(DeleteBehavior.SetNull);
         
         /*
          * Données factices

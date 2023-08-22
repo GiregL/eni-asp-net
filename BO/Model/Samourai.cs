@@ -1,8 +1,9 @@
-﻿namespace BO.Model;
+﻿using AppSamourai.Data;
 
-public class Samourai
+namespace BO.Model;
+
+public class Samourai : EntityBase
 {
-    public int Id { get; set; }
     
     public string Nom { get; set; } = null!;
     
