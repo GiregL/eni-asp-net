@@ -13,6 +13,7 @@ builder.Services.AddDbContext<SamouraiDbContext>(options =>
 });
 
 builder.Services.AddScoped<ArmeRepository, ArmeRepository>();
+builder.Services.AddScoped<SamouraiRepository, SamouraiRepository>();
 
 var app = builder.Build();
 

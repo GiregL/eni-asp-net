@@ -27,6 +27,8 @@
       </PackageReference>
       <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
+      <PackageReference Include="X.PagedList.Mvc" Version="8.0.7" />
+      <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
     </ItemGroup>
 
 

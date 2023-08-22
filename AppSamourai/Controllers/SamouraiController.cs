@@ -3,157 +3,55 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AppSamourai.Data;
 using BO.Model;
-using TpEni.Extensions;
-using TpEni.Models;
+using X.PagedList;
+using TpEni.Repositories;
 
 namespace TpEni.Controllers
 {
     public class SamouraiController : Controller
     {
         private readonly SamouraiDbContext _context;
+        private readonly SamouraiRepository _samouraiRepository;
 
-        public SamouraiController(SamouraiDbContext context)
+        private const int TAILLE_PAGE = 7;
+
+        public SamouraiController(SamouraiDbContext context,
+            SamouraiRepository samouraiRepository)
         {
             _context = context;
+            _samouraiRepository = samouraiRepository;
         }
 
         /// <summary>
         /// Affichage des samourais et filtres de recherche.
         /// </summary>
         /// <returns></returns>
-        public async Task<IActionResult> Index(
-            [Bind("NomSamourai", 
-                "Page", 
-                "NbElemParPage", 
-                "SensTriSamourais", 
-                "ChampTri",
-                "ResetCriteres")] 
-            CriteresRechercheSamourai criteresSaisis
-            )
+        public async Task<IActionResult> Index(string? sortOrder, string? currentFilter, string? searchString, int? page)
         {
-            /*
-             * Mise à jour des critères en cache
-             */
-            CriteresRechercheSamourai criteresEnCache;
+            if (page == null || page < 1) page = 1;
+            if (searchString == null) searchString = "";
+            if (sortOrder == null) sortOrder = "";
+            if (currentFilter == null) currentFilter = "";
             
-            if (TempData.Get<CriteresRechercheSamourai>("criteres") == null)
-            {
-                criteresEnCache = new CriteresRechercheSamourai()
-                {
-                    ResetCriteres = false,
-                    Page = 1,
-                    NbElemParPage = 7,
-                    NomSamourai = null,
-                    ChampTri = ChampTriSamourai.NOM,
-                    SensTriSamourais = SensTri.DESCENDANT,
-                };
-                TempData.Put("criteres", criteresEnCache);
-            }
-            else
-            {
-                criteresEnCache = TempData.Get<CriteresRechercheSamourai>("criteres")!;
-            }
             
-            // Recherche en cours par l'utilisateur, mise a jour des critères.
-            if (criteresSaisis.Page != null) criteresEnCache.Page = criteresSaisis.Page;
-            if (criteresSaisis.NbElemParPage != null) criteresEnCache.NbElemParPage = criteresSaisis.NbElemParPage;
-            if (criteresSaisis.NomSamourai != null)
-            {
-                criteresEnCache.NomSamourai = criteresSaisis.NomSamourai;
-                criteresEnCache.Page = 1;
-            }
-            if (criteresSaisis.ChampTri != null) criteresEnCache.ChampTri = criteresSaisis.ChampTri;
-            if (criteresSaisis.SensTriSamourais != null) criteresEnCache.SensTriSamourais = criteresSaisis.SensTriSamourais;
-            // Reset des critères
-            if (criteresSaisis.ResetCriteres != null && criteresSaisis.ResetCriteres.Value)
-            {
-                criteresEnCache = new CriteresRechercheSamourai()
-                {
-                    ResetCriteres = false,
-                    Page = 1,
-                    NbElemParPage = 7,
-                    NomSamourai = null,
-                    ChampTri = ChampTriSamourai.NOM,
-                    SensTriSamourais = SensTri.DESCENDANT,
-                };
-            }
-            
-            // Validation de la pagination
-            if (criteresEnCache.Page <= 0) criteresEnCache.Page = 1;
-            if (criteresEnCache.NbElemParPage < 1)
-                criteresEnCache.NbElemParPage = CriteresRechercheSamourai.NB_ELEM_PAR_PAGE_DEFAUT;
-            
-            // Sauvegarde du cache
-            TempData.Put("criteres", criteresEnCache);
-            
-            /*
-             * Création de la requête de recherche
-             */
-            IQueryable<Samourai> querySamourais = _context.Samourais.AsQueryable();
+            ViewBag.SortOrder = String.IsNullOrEmpty(sortOrder) ? "asc" : sortOrder;
+            ViewBag.SortFilter = String.IsNullOrEmpty(currentFilter) ? "" : currentFilter;
+            ViewBag.NameSearch = String.IsNullOrEmpty(searchString) ? "" : searchString;
 
-            // Recherche par nom.
-            if (!string.IsNullOrEmpty(criteresEnCache.NomSamourai))
-            {
-                querySamourais = querySamourais.Where(samourai =>
-                    samourai.Nom.ToLower().StartsWith(criteresEnCache.NomSamourai.ToLower()));
-            }
+            var query = _samouraiRepository.GetAll()
+                .Where(samourai => samourai.Nom.ToLower().StartsWith(searchString.ToLower()));
 
-            // Applique l'order by en fonction du sens de tri
-            if (criteresEnCache.SensTriSamourais == SensTri.ASCENDANT)
+            if (currentFilter == "nom")
             {
-                if (criteresEnCache.ChampTri == ChampTriSamourai.NOM)
-                {
-                    querySamourais = querySamourais.OrderBy(s => s.Nom);
-                }
-                else if (criteresEnCache.ChampTri == ChampTriSamourai.FORCE)
-                {
-                    querySamourais = querySamourais.OrderBy(s => s.Force);
-                }
-            }
-            else if (criteresEnCache.SensTriSamourais == SensTri.DESCENDANT)
+                if (sortOrder == "asc") query = query.OrderBy(samourai => samourai.Nom);
+                else query = query.OrderByDescending(samourai => samourai.Nom);
+            } else if (currentFilter == "force")
             {
-                if (criteresEnCache.ChampTri == ChampTriSamourai.NOM)
-                {
-                    querySamourais = querySamourais.OrderByDescending(s => s.Nom);
-                }
-                else if (criteresEnCache.ChampTri == ChampTriSamourai.FORCE)
-                {
-                    querySamourais = querySamourais.OrderByDescending(s => s.Force);
-                }
+                if (sortOrder == "asc") query = query.OrderBy(samourai => samourai.Force);
+                else query = query.OrderByDescending(samourai => samourai.Force);
             }
             
-            /*
-             * Résultat de la recherche et retour utilisateur
-             */
-            List<Samourai> samourais = await querySamourais
-                .Skip(((criteresEnCache.Page ?? 0) - 1) * (criteresEnCache.NbElemParPage ?? 0))
-                .Take(7)
-                .ToListAsync();
-            
-            // Pagination
-            int nombreResultatsSansPages = await querySamourais.CountAsync();
-            ViewBag.NombreResultatsSansPage = nombreResultatsSansPages;
-            int nbPages = nombreResultatsSansPages / (criteresEnCache.NbElemParPage ?? 1);
-
-            if (criteresEnCache.Page > nbPages)
-                criteresEnCache.Page = nbPages;
-
-            // Résultat rendu
-            ResultatRechercheSamouraiModelView resultatRecherche = new ResultatRechercheSamouraiModelView()
-            {
-                ResetCriteres = false,
-                Page = criteresEnCache.Page,
-                NbElemParPage = criteresEnCache.NbElemParPage,
-                ChampTri = criteresEnCache.ChampTri,
-                SensTriSamourais = criteresEnCache.SensTriSamourais,
-                NomSamourai = criteresEnCache.NomSamourai,
-                ResultatRecherche = samourais
-            };
-            
-            
-            return samourais != null ? 
-                        View(resultatRecherche) :
-                        Problem("Entity set 'SamouraiDbContext.Samourai'  is null.");
+            return View(query.ToPagedList(page.Value, TAILLE_PAGE));
         }
 
         // GET: Samourai/Details/5
