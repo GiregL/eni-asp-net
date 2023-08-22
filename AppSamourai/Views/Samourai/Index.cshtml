@@ -1,0 +1,103 @@
+@model ResultatRechercheSamouraiModelView
+
+@{
+    ViewData["Title"] = "Liste des samourais";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<p>
+    <a asp-action="Create">Ajouter un samourai</a>
+</p>
+
+<form asp-action="Index" method="get">
+    <label asp-for="NomSamourai">Rechercher un samourai</label>
+    <input type="search" asp-for="NomSamourai">
+    <button type="submit" class="btn btn-primary">Rechercher</button>
+</form>
+
+<form asp-action="Index" method="get">
+    <input type="hidden" asp-for="ResetCriteres" value="true">
+    <button type="submit" class="btn btn-link">Supprimer les critères de recherche</button>
+</form>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            @if (Model.SensTriSamourais == SensTri.ASCENDANT)
+            {
+                <form asp-action="Index" method="get">
+                    <input type="hidden" asp-for="ChampTri" value="@ChampTriSamourai.NOM">
+                    <input type="hidden" asp-for="SensTriSamourais" value="@SensTri.DESCENDANT">
+                    <button type="submit" class="btn btn-link">Nom</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="Index" method="get">
+                    <input type="hidden" asp-for="ChampTri" value="@ChampTriSamourai.NOM">
+                    <input type="hidden" asp-for="SensTriSamourais" value="@SensTri.ASCENDANT">
+                    <button type="submit" class="btn btn-link">Nom</button>
+                </form>
+            }
+        </th>
+        <th>
+            @if (Model.SensTriSamourais == SensTri.ASCENDANT)
+            {
+                <form asp-action="Index" method="get">
+                    <input type="hidden" asp-for="ChampTri" value="@ChampTriSamourai.FORCE">
+                    <input type="hidden" asp-for="SensTriSamourais" value="@SensTri.DESCENDANT">
+                    <button type="submit" class="btn btn-link">Force</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="Index" method="get">
+                    <input type="hidden" asp-for="ChampTri" value="@ChampTriSamourai.FORCE">
+                    <input type="hidden" asp-for="SensTriSamourais" value="@SensTri.ASCENDANT">
+                    <button type="submit" class="btn btn-link">Force</button>
+                </form>
+            }
+        </th>
+        <th>
+            Arme
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.ResultatRecherche) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nom)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Force)
+            </td>
+            <td>
+                @(item.Arme?.Nom)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Éditer</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Détails</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Supprimer</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div class="row">
+    <form asp-action="Index" method="get">
+        <input asp-for="Page" type="hidden" value="@((Model.Page ?? 0) - 1)">
+        <button type="submit" class="btn btn-secondary btn-sm">Précédent</button>
+    </form>
+
+    <span>Page @(Model.Page ?? 1) / @(ViewBag.NombreResultatsSansPage / Model.NbElemParPage!)</span>
+
+    <form asp-action="Index" method="get">
+        <input asp-for="Page" type="hidden" value="@((Model.Page ?? 0) + 1)">
+        <button type="submit" class="btn btn-secondary btn-sm">Suivant</button>
+    </form>
+</div>

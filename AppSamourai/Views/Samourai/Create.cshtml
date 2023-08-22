@@ -1,0 +1,40 @@
+@model BO.Model.Samourai
+
+@{
+    ViewData["Title"] = "Ajouter un samourai";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<h4>Samourais</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Nom" class="control-label"></label>
+                <input asp-for="Nom" class="form-control" />
+                <span asp-validation-for="Nom" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Force" class="control-label"></label>
+                <input asp-for="Force" class="form-control" />
+                <span asp-validation-for="Force" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdArme" class="control-label">Arme</label>
+                <select asp-for="IdArme" asp-items="@ViewBag.ArmesDisponibles" class="form-control"></select>
+                <span asp-validation-for="IdArme" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Ajouter" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Retourner à la liste</a>
+</div>
+
