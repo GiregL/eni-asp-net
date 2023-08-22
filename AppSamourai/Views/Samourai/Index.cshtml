@@ -23,21 +23,21 @@
         <th>
             @if (ViewBag.SortOrder == "asc")
             {
-                @Html.ActionLink("Nom", "Index", new { sortOrder = "desc", currentFilter = "nom" })
+                @Html.ActionLink("Nom", "Index", new { sortOrder = "desc", currentFilter = "nom", searchString = ViewBag.SearchString })
             }
             else
             {
-                @Html.ActionLink("Nom", "Index", new { sortOrder = "asc", currentFilter = "nom" })
+                @Html.ActionLink("Nom", "Index", new { sortOrder = "asc", currentFilter = "nom", searchString = ViewBag.SearchString })
             }
         </th>
         <th>
             @if (ViewBag.SortOrder == "asc")
             {
-                @Html.ActionLink("Force", "Index", new { sortOrder = "desc", currentFilter = "force" })
+                @Html.ActionLink("Force", "Index", new { sortOrder = "desc", currentFilter = "force", searchString = ViewBag.SearchString })
             }
             else
             {
-                @Html.ActionLink("Force", "Index", new { sortOrder = "asc", currentFilter = "force" })
+                @Html.ActionLink("Force", "Index", new { sortOrder = "asc", currentFilter = "force", searchString = ViewBag.SearchString })
             }
         </th>
         <th>
