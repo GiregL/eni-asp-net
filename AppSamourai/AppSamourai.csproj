@@ -9,9 +9,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BO\BO.csproj" />
+      <ProjectReference Include="..\WebAPI\WebAPI.csproj" />
     </ItemGroup>
-
-
 
     <ItemGroup>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
@@ -29,15 +28,11 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
       <PackageReference Include="X.PagedList.Mvc" Version="8.0.7" />
       <PackageReference Include="X.PagedList.Mvc.Core" Version="8.4.7" />
+        
     </ItemGroup>
 
-
-
-
-
-
-
-
-
+    <ItemGroup>
+      <Folder Include="Services\" />
+    </ItemGroup>
 
 </Project>
