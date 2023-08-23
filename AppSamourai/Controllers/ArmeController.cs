@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AppSamourai.Data;
 using BO.Model;
 using TpEni.Repositories;
 

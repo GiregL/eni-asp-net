@@ -10,6 +10,7 @@ public class SamouraiDbContext : DbContext
 {
     public DbSet<Arme> Armes { get; set; }
     public DbSet<Samourai> Samourais { get; set; }
+    public DbSet<ArtMartial> ArtMartiaux { get; set; }
     
     public SamouraiDbContext(DbContextOptions options) : base(options)
     {
@@ -31,6 +32,11 @@ public class SamouraiDbContext : DbContext
             .WithOne(arme => arme.Utilisateur)
             .HasForeignKey<Arme>(arme => arme.IdUtilisateur)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        // Relation Art martial <-> Samourai
+        samouraiBuilder
+            .HasMany(samourai => samourai.Techniques)
+            .WithMany(techniques => techniques.Utilisateurs);
         
         /*
          * Données factices

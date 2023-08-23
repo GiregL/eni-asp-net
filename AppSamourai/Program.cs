@@ -1,6 +1,7 @@
 using AppSamourai.Data;
 using Microsoft.EntityFrameworkCore;
 using TpEni.Repositories;
+using TpEni.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<SamouraiDbContext>(options =>
 
 builder.Services.AddScoped<ArmeRepository, ArmeRepository>();
 builder.Services.AddScoped<SamouraiRepository, SamouraiRepository>();
+builder.Services.AddScoped<ISamouraiServices, SamouraiServicesImpl>();
 
 var app = builder.Build();
 

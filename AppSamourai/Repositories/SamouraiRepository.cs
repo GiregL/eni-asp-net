@@ -3,9 +3,17 @@ using BO.Model;
 
 namespace TpEni.Repositories;
 
-public class SamouraiRepository : CrudRepository<Samourai, SamouraiDbContext>
+public class SamouraiRepository
 {
-    public SamouraiRepository(SamouraiDbContext context) : base(context)
+    private readonly SamouraiDbContext _context;
+
+    public SamouraiRepository(SamouraiDbContext context)
     {
+        _context = context;
+    }
+
+    public IEnumerable<Samourai> GetAll()
+    {
+        return _context.Samourais;
     }
 }

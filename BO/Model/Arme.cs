@@ -1,11 +1,8 @@
-﻿using System.Runtime.Serialization;
-using AppSamourai.Data;
+﻿namespace BO.Model;
 
-namespace BO.Model;
-
-public class Arme : EntityBase
+public class Arme
 {
-
+    public int Id { get; set; }
     public string Nom { get; set; } = null!;
     public double Degats { get; set; }
     
