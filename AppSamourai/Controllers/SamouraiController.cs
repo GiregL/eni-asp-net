@@ -93,6 +93,7 @@ namespace TpEni.Controllers
             });
             
             ViewBag.ArmesDisponibles = armes;
+
             
             return View();
         }

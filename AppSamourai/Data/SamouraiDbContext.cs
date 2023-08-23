@@ -11,6 +11,7 @@ public class SamouraiDbContext : DbContext
     public DbSet<Arme> Armes { get; set; }
     public DbSet<Samourai> Samourais { get; set; }
     public DbSet<ArtMartial> ArtMartials { get; set; }
+    public DbSet<ArtMartialSamourai> ArtMartialSamourais { get; set; }
     
     public SamouraiDbContext(DbContextOptions options) : base(options)
     {
@@ -43,7 +44,8 @@ public class SamouraiDbContext : DbContext
         // Relation Art martial <-> Samourai
         samouraiBuilder
             .HasMany(samourai => samourai.Techniques)
-            .WithMany(techniques => techniques.Utilisateurs);
+            .WithMany(techniques => techniques.Utilisateurs)
+            .UsingEntity<ArtMartialSamourai>();
         
         /*
          * Données factices
