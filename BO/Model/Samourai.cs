@@ -9,5 +9,5 @@ public class Samourai
     public int? IdArme { get; set; }
     public Arme? Arme { get; set; }
 
-    public ICollection<ArtMartial> Techniques { get; set; }
+    public ICollection<ArtMartial>? Techniques { get; set; }
 }

@@ -10,7 +10,7 @@ public class SamouraiDbContext : DbContext
 {
     public DbSet<Arme> Armes { get; set; }
     public DbSet<Samourai> Samourais { get; set; }
-    public DbSet<ArtMartial> ArtMartiaux { get; set; }
+    public DbSet<ArtMartial> ArtMartials { get; set; }
     
     public SamouraiDbContext(DbContextOptions options) : base(options)
     {
@@ -20,13 +20,20 @@ public class SamouraiDbContext : DbContext
     {
         var samouraiBuilder = modelBuilder.Entity<Samourai>();
         var armeBuilder = modelBuilder.Entity<Arme>();
+        var artMartialBuilder = modelBuilder.Entity<ArtMartial>();
 
         samouraiBuilder.HasKey(samourai => samourai.Id);
         armeBuilder.HasKey(arme => arme.Id);
+        artMartialBuilder.HasKey(am => am.Id);
 
         samouraiBuilder.Property(s => s.Nom).IsRequired().HasMaxLength(256);
         armeBuilder.Property(arme => arme.Nom).IsRequired().HasMaxLength(256);
+        artMartialBuilder.Property(am => am.Nom).IsRequired().HasMaxLength(64);
 
+        samouraiBuilder.Property(samourai => samourai.Id).ValueGeneratedOnAdd();
+        armeBuilder.Property(arme => arme.Id).ValueGeneratedOnAdd();
+        artMartialBuilder.Property(am => am.Id).ValueGeneratedOnAdd();
+        
         samouraiBuilder
             .HasOne(samourai => samourai.Arme)
             .WithOne(arme => arme.Utilisateur)
