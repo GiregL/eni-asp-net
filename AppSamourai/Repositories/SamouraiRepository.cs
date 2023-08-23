@@ -16,4 +16,9 @@ public class SamouraiRepository
     {
         return _context.Samourais;
     }
+
+    public Samourai Add(Samourai samourai)
+    {
+        return _context.Samourais.Add(samourai).Entity;
+    }
 }

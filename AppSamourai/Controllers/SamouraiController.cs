@@ -1,8 +1,10 @@
+using System.Collections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AppSamourai.Data;
 using BO.Model;
+using TpEni.Models;
 using X.PagedList;
 using TpEni.Repositories;
 
@@ -12,14 +14,18 @@ namespace TpEni.Controllers
     {
         private readonly SamouraiDbContext _context;
         private readonly SamouraiRepository _samouraiRepository;
+        private readonly ArtMartialRepository _artMartialRepository;
 
         private const int TAILLE_PAGE = 7;
 
-        public SamouraiController(SamouraiDbContext context,
-            SamouraiRepository samouraiRepository)
+        public SamouraiController(
+            SamouraiDbContext context,
+            SamouraiRepository samouraiRepository,
+            ArtMartialRepository artMartialRepository)
         {
             _context = context;
             _samouraiRepository = samouraiRepository;
+            _artMartialRepository = artMartialRepository;
         }
 
         /// <summary>
@@ -64,6 +70,7 @@ namespace TpEni.Controllers
 
             var samourai = await _context.Samourais
                 .Include(samourai => samourai.Arme)
+                .Include(samourai => samourai.Techniques)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (samourai == null)
             {
@@ -85,15 +92,28 @@ namespace TpEni.Controllers
                     Selected = false
                 })
                 .ToList();
-
             armes.Insert(0, new SelectListItem()
             {
                 Text = "-- Sélectionnez une valeur --",
                 Value = ""
             });
-            
             ViewBag.ArmesDisponibles = armes;
 
+            List<SelectListItem> artsMartiaux = _artMartialRepository.GetAll()
+                .Select(am => new SelectListItem()
+                {
+                    Text = am.Nom,
+                    Value = "" + am.Id,
+                    Selected = false
+                })
+                .ToList();
+            artsMartiaux.Insert(0, new SelectListItem()
+            {
+                Text = "-- Sélectionnez une valeur --",
+                Value = ""
+            });
+
+            ViewBag.ArtsMartiaux = artsMartiaux;
             
             return View();
         }
@@ -103,10 +123,23 @@ namespace TpEni.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Nom,Force,IdArme")] Samourai samourai)
+        public async Task<IActionResult> Create([Bind("Id,Nom,Force,IdArme, IdsArtsMartiauxChoisis")] CreateSamouraiModelView samourai)
         {
             if (ModelState.IsValid)
             {
+
+                IEnumerable<ArtMartial> artsMartiaux =_artMartialRepository
+                    .GetAll()
+                    .Where(am => samourai.IdsArtsMartiauxChoisis.Contains(am.Id));
+
+                Samourai result = new Samourai()
+                {
+                    Id = samourai.Id,
+                    Force = samourai.Force,
+                    Nom = samourai.Nom,
+                    IdArme = samourai.IdArme,
+                };
+                
                 if (samourai.IdArme != null)
                 {
                     Arme? arme = await _context.Armes.SingleOrDefaultAsync(arme => arme.Id == samourai.IdArme);
@@ -114,10 +147,12 @@ namespace TpEni.Controllers
                     {
                         return NotFound();
                     }
-                    samourai.Arme = arme;
+                    result.Arme = arme;
                 }
+
+                _samouraiRepository.Add(result);
+                _artMartialRepository.AddManyToSamourai(result, artsMartiaux);
                 
-                _context.Add(samourai);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }

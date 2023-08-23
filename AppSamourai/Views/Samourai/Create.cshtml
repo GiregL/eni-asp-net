@@ -1,4 +1,4 @@
-@model BO.Model.Samourai
+@model CreateSamouraiModelView
 
 @{
     ViewData["Title"] = "Ajouter un samourai";
@@ -26,6 +26,11 @@
                 <label asp-for="IdArme" class="control-label">Arme</label>
                 <select asp-for="IdArme" asp-items="@ViewBag.ArmesDisponibles" class="form-control"></select>
                 <span asp-validation-for="IdArme" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdsArtsMartiauxChoisis" class="control-label">Arts martiaux</label>
+                <select asp-for="IdsArtsMartiauxChoisis" asp-items="@ViewBag.ArtsMartiaux" class="form-control" multiple></select>
+                <span asp-validation-for="IdsArtsMartiauxChoisis" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Ajouter" class="btn btn-primary" />
